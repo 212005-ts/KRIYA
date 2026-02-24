@@ -288,6 +288,44 @@ app.listen(3000, () => {
     
     this.updateMemberStatus(teamId, memberId, 'offline')
   }
+
+  addMember(teamId: string, member: Omit<TeamMember, 'lastSeen'>) {
+    const team = this.teams.get(teamId)
+    if (!team) return
+
+    const existingMember = team.members.find(m => m.id === member.id)
+    if (existingMember) return
+
+    team.members.push({
+      ...member,
+      lastSeen: new Date().toISOString()
+    })
+    team.lastActivity = new Date().toISOString()
+  }
+
+  removeMember(teamId: string, memberId: string) {
+    const team = this.teams.get(teamId)
+    if (!team) return
+
+    team.members = team.members.filter(m => m.id !== memberId)
+    team.workspace.sharedState.activeMembers = 
+      team.workspace.sharedState.activeMembers.filter(id => id !== memberId)
+    team.lastActivity = new Date().toISOString()
+    
+    return team
+  }
+
+  createTeam(team: Omit<Team, 'id' | 'createdAt' | 'lastActivity'>) {
+    const teamId = `team-${Date.now()}`
+    const newTeam: Team = {
+      ...team,
+      id: teamId,
+      createdAt: new Date().toISOString(),
+      lastActivity: new Date().toISOString()
+    }
+    this.teams.set(teamId, newTeam)
+    return newTeam
+  }
 }
 
 export const teamService = new TeamService()
