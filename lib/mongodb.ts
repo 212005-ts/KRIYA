@@ -1,4 +1,4 @@
-import { MongoClient, Db } from 'mongodb'
+import { MongoClient, Db, ServerApiVersion } from 'mongodb'
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/kriya_ide'
 
@@ -8,7 +8,13 @@ let db: Db | null = null
 export async function connectDB(): Promise<Db> {
   if (db) return db
 
-  client = new MongoClient(MONGODB_URI)
+  client = new MongoClient(MONGODB_URI, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    }
+  })
   await client.connect()
   db = client.db()
   
