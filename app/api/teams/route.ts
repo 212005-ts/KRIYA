@@ -8,6 +8,11 @@ export async function GET() {
     
     return NextResponse.json({ success: true, teams })
   } catch (error) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch teams' }, { status: 500 })
+    console.error('Teams API error:', error)
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to fetch teams',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }
